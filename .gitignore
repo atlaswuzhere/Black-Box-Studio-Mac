@@ -1,0 +1,22 @@
+# User library and portable app data (never commit these)
+/app/BLACKBOX-PERSONAL-AUDIO/MUSIC/*
+!/app/BLACKBOX-PERSONAL-AUDIO/MUSIC/README-PUT-YOUR-MUSIC-HERE.txt
+/app/BLACKBOX-PERSONAL-AUDIO/Data/*
+!/app/BLACKBOX-PERSONAL-AUDIO/Data/README-PORTABLE-DATA.txt
+/app/BLACKBOX-PERSONAL-AUDIO/Playlists/*
+!/app/BLACKBOX-PERSONAL-AUDIO/Playlists/README-PLAYLISTS.txt
+
+# Local settings, secrets, logs, and machine-specific files
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.bak
+*.pem
+*.key
+*.p12
+*.pfx
+.DS_Store
+Thumbs.db
+desktop.ini
