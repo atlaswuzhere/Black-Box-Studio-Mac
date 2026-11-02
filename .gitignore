@@ -1,4 +1,10 @@
 # User library and portable app data (never commit these)
+/MUSIC/*
+!/MUSIC/README-PUT-YOUR-MUSIC-HERE.txt
+/Data/*
+!/Data/README-PORTABLE-DATA.txt
+/Playlists/*
+!/Playlists/README-PLAYLISTS.txt
 /app/BLACKBOX-PERSONAL-AUDIO/MUSIC/*
 !/app/BLACKBOX-PERSONAL-AUDIO/MUSIC/README-PUT-YOUR-MUSIC-HERE.txt
 /app/BLACKBOX-PERSONAL-AUDIO/Data/*
@@ -6,7 +12,39 @@
 /app/BLACKBOX-PERSONAL-AUDIO/Playlists/*
 !/app/BLACKBOX-PERSONAL-AUDIO/Playlists/README-PLAYLISTS.txt
 
-# Local settings, secrets, logs, and machine-specific files
+# Xcode & Swift build artifacts
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+playground.xcworkspace
+.build/
+.swiftpm/
+
+# Generated WebUI copy inside Xcode bundle (source of truth stays in repo root)
+macOS-Xcode/BlackBoxStudio/WebUI/
+
+# macOS system & Finder metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Local settings, secrets, logs, and signing keys
 .env
 .env.*
 !.env.example
@@ -17,6 +55,7 @@
 *.key
 *.p12
 *.pfx
-.DS_Store
+*.mobileprovision
+*.cer
 Thumbs.db
 desktop.ini
