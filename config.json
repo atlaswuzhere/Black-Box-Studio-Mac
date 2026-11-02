@@ -1,0 +1,12 @@
+{
+  "musicFolder": "MUSIC",
+  "playlistFolder": "Playlists",
+  "cacheFolder": "Data",
+  "extensions": [".mp3", ".wav", ".m4a", ".wma", ".aac", ".flac"],
+  "defaultVolume": 85,
+  "seekSeconds": 5,
+  "unicode": true,
+  "boot": true,
+  "pulse": true,
+  "crossfade": 4
+}

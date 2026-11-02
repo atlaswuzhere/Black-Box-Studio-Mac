@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#100d09">
+<meta name="description" content="BLACKBOX is a local music player for your own audio files, with playlists, listening profiles, Record Mode and audio-reactive visualizers.">
+<title>BLACKBOX — Personal Audio System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="AMBER" data-variant="GRADIENT" data-layout="0">
+<div id="app" class="app-shell">
+  <header class="topbar">
+    <div class="brand-lockup">
+      <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
+      <div><div class="brand-title">BLACKBOX</div><div class="brand-sub">PERSONAL AUDIO SYSTEM</div></div>
+    </div>
+    <div class="top-status">
+      <div class="status-chip"><i class="status-dot" id="engine-dot"></i><span id="engine-status">ENGINE READY</span></div>
+      <div class="beat-cluster" aria-label="Beat tracker"><span class="beat-box"></span><span class="beat-box"></span><span class="beat-box"></span><span class="beat-box"></span></div>
+      <div class="status-chip quiet" id="clock-status">LOCAL / OFFLINE</div>
+    </div>
+    <div class="workspace-actions" aria-label="Workspace controls">
+      <button class="workspace-mode active" data-experience="studio" title="Studio workspace">STUDIO</button>
+      <button class="workspace-mode" data-experience="void" title="Immersive visualizer">VOID</button>
+      <button class="workspace-mode" data-experience="deck" title="Compact player">DECK</button>
+      <button class="workspace-mode record-workspace-trigger" data-experience="record" title="Continuous vinyl visualizer">RECORD</button>
+      <button class="workspace-mode mini-window-trigger" id="open-mini-window" title="Open compact playback window">MINI ↗</button>
+      <button class="command-trigger" id="command-open" title="Command palette (Ctrl+K)"><span>⌕</span><kbd>CTRL K</kbd></button>
+    </div>
+    <button class="icon-button mobile-menu" id="mobile-menu" title="Toggle navigation">☰</button>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="drive-card">
+      <div class="drive-head"><span class="overline">SOURCE DRIVE</span><span class="rec-pill"><i></i> LOCAL</span></div>
+      <div class="drive-name" id="drive-name">No library connected</div>
+      <div class="drive-path" id="drive-path">Choose MUSIC or a drive folder to begin</div>
+      <button class="primary-button full" id="connect-library"><span>＋</span> CONNECT MUSIC FOLDER</button>
+      <button class="subtle-button full" id="compat-folder-picker">▣ BROWSER COMPATIBILITY PICKER</button>
+      <div class="compat-picker-note">Use if the native folder chooser is blocked. Select the MUSIC folder, or the app folder containing MUSIC.</div>
+      <button class="subtle-button full" id="rescan-library">↻ RESCAN LIBRARY</button>
+      <div class="library-count"><span id="library-count">0 TRACKS</span><span id="library-size">0 MB</span></div>
+      <div class="drive-meter"><span id="drive-meter-fill"></span></div>
+    </div>
+    <div class="nav-section-label">COLLECTION</div>
+    <nav class="nav-list" aria-label="Main navigation">
+      <button class="nav-item active" data-view="library"><span class="nav-icon">▤</span><span>Library</span><span class="nav-count" id="nav-library-count">0</span></button>
+      <button class="nav-item" data-view="search"><span class="nav-icon">⌕</span><span>Search</span><kbd>/</kbd></button>
+      <button class="nav-item" data-view="now"><span class="nav-icon">◉</span><span>Now Playing</span></button>
+      <button class="nav-item" data-view="queue"><span class="nav-icon">☷</span><span>Queue</span><span class="nav-count" id="nav-queue-count">0</span></button>
+      <button class="nav-item" data-view="favorites"><span class="nav-icon">♥</span><span>Favorites</span><span class="nav-count" id="nav-favorites-count">0</span></button>
+      <button class="nav-item" data-view="collections"><span class="nav-icon">✧</span><span>Smart Collections</span></button>
+      <button class="nav-item" data-view="playlists"><span class="nav-icon">▣</span><span>Playlists</span></button>
+      <button class="nav-item" data-view="profiles"><span class="nav-icon">◈</span><span>Listening Profiles</span></button>
+      <button class="nav-item" data-view="moments"><span class="nav-icon">✧</span><span>Track Moments</span></button>
+      <button class="nav-item" data-view="recent"><span class="nav-icon">↶</span><span>Recently Played</span></button>
+      <button class="nav-item" data-view="statistics"><span class="nav-icon">▥</span><span>Statistics</span></button>
+    </nav>
+    <div class="nav-section-label">LEARN</div>
+    <button class="nav-item" data-view="guide"><span class="nav-icon">?</span><span>BLACKBOX Guide</span></button>
+    <div class="sidebar-bottom">
+      <div class="nav-section-label">ENGINE</div>
+      <button class="nav-item" data-view="equalizer"><span class="nav-icon">≋</span><span>Equalizer</span></button>
+      <button class="nav-item" data-view="tools"><span class="nav-icon">⌘</span><span>Tools & Colors</span></button>
+      <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span>Settings</span></button>
+      <div class="sidebar-note"><span class="note-led"></span><span>Files stay on your device.<br>Internet is only used when you request lyrics.</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content" id="main-content">
+    <section class="view active" id="view-library" data-view-panel="library">
+      <div class="page-heading"><div><div class="eyebrow">YOUR LOCAL ARCHIVE</div><h1>Music <span>Library</span></h1><p class="page-description">Every track. Every folder. All under your control.</p></div><div class="heading-actions"><button class="outline-button" id="smart-mix">✦ SMART MIX <small>25</small></button><button class="primary-button" id="shuffle-all">⤨ SHUFFLE ALL</button></div></div>
+      <div class="metric-row">
+        <div class="metric-card"><span class="metric-label">TRACKS INDEXED</span><strong id="metric-tracks">0</strong><span class="metric-foot">SUPPORTED LOCAL FILES</span></div>
+        <div class="metric-card"><span class="metric-label">ARTISTS</span><strong id="metric-artists">0</strong><span class="metric-foot">UNIQUE ARTIST TAGS</span></div>
+        <div class="metric-card"><span class="metric-label">LISTENING TIME</span><strong id="metric-time">0<span>h</span></strong><span class="metric-foot">ESTIMATED FROM TRACKS PLAYED</span></div>
+        <div class="metric-card accent-metric"><span class="metric-label">LIKED TRACKS</span><strong id="metric-liked">0</strong><span class="metric-foot">YOUR FAVORITES</span></div>
+      </div>
+      <div class="section-toolbar"><div><h2>All tracks <span class="count-badge" id="library-section-count">0</span></h2><span class="muted" id="library-message">Connect your music folder to build the local index.</span></div><div class="toolbar-controls"><label class="search-box"><span>⌕</span><input id="library-search" type="search" placeholder="Filter tracks…" autocomplete="off"></label><select id="library-sort" aria-label="Sort tracks"><option value="index">Library order</option><option value="title">Title A–Z</option><option value="artist">Artist A–Z</option><option value="album">Album A–Z</option><option value="plays">Most played</option><option value="recent">Recently added</option><option value="rating">Highest rated</option><option value="genre">Genre A–Z</option></select><button class="square-button" id="find-duplicates" title="Find duplicate audio files">⧉</button><button class="square-button" id="library-refresh" title="Rescan library">↻</button></div></div>
+      <div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu"></th></tr></thead><tbody id="library-rows"><tr class="empty-row"><td colspan="7"><div class="empty-state"><div class="empty-symbol">▤</div><strong>Your library is empty</strong><span>Connect your MUSIC folder above. Subfolders are indexed automatically.</span></div></td></tr></tbody></table></div>
+      <div class="table-footer"><span id="library-footer-left">WAITING FOR SOURCE</span><span id="library-footer-right">ID3 TAGS · RECURSIVE INDEX · LOCAL CACHE</span></div>
+    </section>
+
+    <section class="view" id="view-search" data-view-panel="search">
+      <div class="page-heading"><div><div class="eyebrow">FIND YOUR FREQUENCY</div><h1>Search <span>Archive</span></h1><p class="page-description">Search titles, artists, albums, file names, and folders.</p></div></div>
+      <label class="global-search"><span>⌕</span><input id="global-search" type="search" placeholder="Try an artist, title, album, or path…" autocomplete="off"><kbd>ESC</kbd></label>
+      <div class="section-toolbar"><div><h2>Results <span class="count-badge" id="search-count">0</span></h2><span class="muted" id="search-hint">Type to search the connected library.</span></div></div>
+      <div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu"></th></tr></thead><tbody id="search-rows"></tbody></table></div>
+    </section>
+
+    <section class="view" id="view-now" data-view-panel="now">
+      <div class="page-heading compact-heading"><div><div class="eyebrow">DECK A / LIVE SIGNAL</div><h1>Now <span>Playing</span></h1><p class="page-description">Listen, watch the signal, and tune the engine.</p></div><div class="heading-actions"><button class="outline-button" id="open-lyrics">◎ LYRICS <kbd>G</kbd></button><button class="outline-button" id="show-equalizer">≋ EQUALIZER</button><button class="outline-button" id="show-queue">☷ UP NEXT <kbd>TAB</kbd></button><button class="outline-button" id="album-mode">◉ RECORD MODE</button><button class="outline-button" id="similar-tracks">✧ SIMILAR</button><button class="outline-button" id="save-track-moment">✦ SAVE MOMENT</button></div></div>
+      <section class="record-workspace" id="record-workspace" aria-label="Record visualizer workspace">
+        <div class="record-ambient record-ambient-a"></div><div class="record-ambient record-ambient-b"></div>
+        <div class="record-workspace-top"><div><span class="eyebrow">BLACKBOX / RECORD EXPERIENCE</span><h2>Let the record <span>run.</span></h2><p>One continuous vinyl visualizer for whatever is currently playing.</p></div><div class="record-top-actions"><button class="outline-button" id="record-lyrics-toggle">LYRICS OVERLAY</button><button class="outline-button" id="record-save-moment-top">SAVE MOMENT</button><button class="outline-button" id="record-exit">BACK TO PLAYER ↗</button></div></div>
+        <div class="record-layout">
+          <div class="record-visual-card glass-panel">
+            <div class="record-light-orbit"></div>
+            <div class="record-pulse-wrap" id="record-pulse-wrap" style="--record-pulse:1">
+              <div class="record-disc" id="record-disc" aria-label="Continuously spinning vinyl record">
+                <div class="record-grooves"></div><div class="record-reflection"></div><div class="record-label-well"></div>
+                <img class="record-label-art" id="record-label-art" alt="" draggable="false">
+                <img class="record-label-art record-label-art-next" id="record-next-label-art" alt="" draggable="false">
+                <span class="record-label-ring"></span><span class="record-spindle"></span>
+              </div>
+            </div>
+            <div class="record-status-line"><span><i></i> VINYL MOTOR</span><span id="record-motion-status">IDLE / READY</span></div>
+            <div class="record-control-row"><button class="record-control" id="record-previous" title="Previous track">|◀</button><button class="record-control record-play" id="record-play" title="Play / pause">▶</button><button class="record-control" id="record-next" title="Next track">▶|</button><button class="record-control record-favorite" id="record-favorite" title="Favorite current track">♡</button></div>
+            <div class="record-progress"><span id="record-time-current">00:00</span><input id="record-seek" type="range" min="0" max="1000" value="0" aria-label="Seek current track from Record workspace"><span id="record-time-duration">00:00</span></div>
+            <div class="record-drive-settings"><label><span>ROTATION DRIVE</span><input id="record-speed-setting" type="range" min="25" max="100" value="58"><output id="record-speed-output">58%</output></label><label><span>BASS RESPONSE</span><input id="record-bass-setting" type="range" min="0" max="100" value="64"><output id="record-bass-output">64%</output></label></div>
+          </div>
+          <div class="record-side-column">
+            <div class="record-track-card glass-panel"><span class="eyebrow">NOW ON THE TURNTABLE</span><div class="record-current-track"><div class="record-track-art" id="record-track-art">◖</div><div class="record-track-copy"><h3 id="record-track-title">No track selected</h3><p id="record-track-artist">Connect your local music library.</p><span id="record-track-album">NO ALBUM SELECTED</span></div></div><div class="record-transition-row"><span class="record-transition-led"></span><span>ARTWORK & LIGHT TRANSITIONS</span><span id="record-transition-label">READY</span></div></div>
+            <div class="record-lyrics-card glass-panel" id="record-lyrics-panel"><div class="panel-heading"><div><span class="eyebrow">LYRICS / IMMERSIVE OVERLAY</span><h3>Words in the glow</h3></div><button class="mini-button" id="record-lyrics-close">HIDE</button></div><div class="record-lyrics-lines" id="record-lyrics-lines"><div class="lyrics-empty"><strong>Lyrics appear here</strong><p>Load local .lrc/.txt lyrics or use GET in Now Playing.</p></div></div></div>
+            <div class="record-moments-card glass-panel"><div class="panel-heading"><div><span class="eyebrow">PERSONAL MARKERS</span><h3>Track moments</h3></div><button class="mini-button" id="record-save-moment">＋ SAVE</button></div><div id="record-moments-mini" class="record-moments-mini"><div class="small-empty">Bookmark a moment in the current track.</div></div><button class="text-action" id="record-all-moments">VIEW ALL MOMENTS →</button></div>
+          </div>
+        </div>
+      </section>
+      <div class="player-layout" id="player-layout">
+        <div class="player-main-column">
+          <div class="visualizer-card" id="visualizer-card">
+            <div class="visualizer-top"><div class="visualizer-label"><span class="rec-light"></span><span>LIVE SIGNAL ANALYZER</span><span class="sim-tag" id="analyzer-badge">WEB AUDIO</span></div><div class="visualizer-meta"><button class="viz-mode-switch" id="viz-cycle" title="Switch visualizer (V)"><span id="viz-mode-label">SPECTRUM</span><span aria-hidden="true">↻</span></button><span class="tiny-divider">/</span><span id="viz-bpm">-- BPM</span><button class="viz-fullscreen" id="viz-fullscreen" title="Fullscreen visualizer">⛶</button></div></div>
+            <canvas id="visualizer" aria-label="Audio visualizer"></canvas>
+            <div class="visualizer-bottom"><span id="viz-frequency">FFT / 2048</span><span id="viz-beat-state">WAITING FOR AUDIO</span><span id="viz-sensitivity">SENS 0</span></div>
+            <div class="viz-flash" id="viz-flash"></div>
+          </div>
+          <div class="track-now-card">
+            <div class="track-now-art" id="track-art" aria-label="Album artwork"><span class="art-grid"></span><span class="art-glyph">◖</span><span class="art-foot">BLACKBOX</span></div>
+            <div class="track-now-meta"><div class="eyebrow">CURRENT SELECTION <span class="playing-eq"><i></i><i></i><i></i></span></div><h2 id="now-title" title="No track selected">No track selected</h2><div class="now-artist" id="now-artist">Connect a folder and choose a track</div><div class="now-tags"><span id="now-album-tag">NO ALBUM</span><span id="now-format-tag">---</span><span id="now-status-tag">READY</span></div><div class="now-next"><span class="overline">NEXT UP</span><span id="next-track-label">Queue is empty</span></div></div>
+            <div class="vinyl-stage" id="vinyl-stage" aria-label="Standalone spinning vinyl record">
+              <div class="vinyl-disc" id="vinyl-disc" aria-hidden="true"><span class="vinyl-groove-light"></span><div class="vinyl-label" id="vinyl-label"><span class="vinyl-label-fallback">BB</span></div><span class="vinyl-spindle"></span></div>
+            </div>
+            <button class="favorite-big" id="now-favorite" title="Toggle favorite">♡</button>
+          </div>
+          <div class="transport-card">
+            <div class="transport-topline"><span id="transport-state">STOPPED</span><span id="time-remaining">−00:00</span></div>
+            <div class="waveform-wrap"><canvas id="track-waveform" role="slider" tabindex="0" aria-label="Track waveform. Click or use arrow keys to seek." aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"></canvas><span id="waveform-status">WAVEFORM READY</span></div>
+            <div class="progress-wrap"><span class="time-readout" id="time-current">00:00</span><input type="range" min="0" max="1000" value="0" id="seek-slider" aria-label="Seek track"><span class="time-readout" id="time-duration">00:00</span></div>
+            <div class="transport-controls"><button class="transport-small" id="shuffle-toggle" title="Smart shuffle (S)">⤨</button><button class="transport-small" id="previous-track" title="Previous (B)">|◀</button><button class="transport-play" id="play-toggle" title="Play / Pause (Space)">▶</button><button class="transport-small" id="next-track" title="Next (N)">▶|</button><button class="transport-small" id="repeat-toggle" title="Repeat (R)">↻<small id="repeat-one-label"></small></button><span class="transport-divider"></span><button class="transport-small" id="loop-toggle" title="A–B loop (A)">A↔B</button><button class="transport-small" id="mute-toggle" title="Mute (M)">◖</button><div class="volume-control"><span>VOL</span><input type="range" min="0" max="100" value="85" id="volume-slider" aria-label="Volume"><span id="volume-label">85</span></div><button class="transport-small speed-button" id="speed-cycle" title="Playback speed ([ / ])"><span id="speed-label">1.0×</span></button></div>
+            <div class="transport-bottomline"><span id="loop-state">A–B LOOP OFF</span><span id="crossfade-state">CROSSFADE 4S</span><button class="text-action" id="sleep-timer">◷ SLEEP TIMER <span id="sleep-label"></span></button></div>
+          </div>
+        </div>
+        <aside class="player-side-column">
+          <div class="lyrics-card" id="lyrics-card"><div class="panel-heading"><div><span class="eyebrow">LYRICS / TIMELINE</span><h3>Live lyrics</h3></div><button class="mini-button" id="lyrics-fetch" title="Fetch lyrics from LRCLIB (internet used only on click)">↧ GET</button></div><div class="lyrics-content" id="lyrics-content"><div class="lyrics-empty"><span>♫</span><strong>Words when you need them.</strong><p>Put a matching <code>.lrc</code> or <code>.txt</code> next to your track, or press G to request lyrics.</p></div></div><div class="lyrics-footer"><span id="lyrics-source">NO LYRICS LOADED</span><span id="lyrics-offset">SYNC +0MS</span></div></div>
+          <div class="beat-card"><div class="panel-heading"><div><span class="eyebrow">RHYTHM ANALYSIS</span><h3>Beat sync</h3></div><span class="live-pill"><i></i> LIVE</span></div><div class="bpm-display"><strong id="bpm-large">--</strong><span>BPM</span><button id="manual-hit" class="hit-button" title="Manual beat hit (H)">HIT <kbd>H</kbd></button></div><div class="beat-levels"><div><span>KICK</span><div class="level-track"><i id="kick-level"></i></div></div><div><span>SNARE / HAT</span><div class="level-track"><i id="snare-level"></i></div></div></div><div class="beat-controls"><button class="mini-button" id="sync-minus">K −25MS</button><span id="sync-value">0MS</span><button class="mini-button" id="sync-plus">L +25MS</button></div></div>
+          <div class="up-next-card"><div class="panel-heading"><div><span class="eyebrow">PLAYBACK QUEUE</span><h3>Up next</h3></div><button class="text-action" id="queue-view-link">VIEW ALL →</button></div><div id="up-next-list" class="up-next-list"><div class="small-empty">Queue tracks appear here.</div></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view" id="view-queue" data-view-panel="queue">
+      <div class="page-heading"><div><div class="eyebrow">ORDER OF PLAY</div><h1>Playback <span>Queue</span></h1><p class="page-description">Reorder, remove, or play tracks from here.</p></div><div class="heading-actions"><button class="outline-button" id="save-queue-playlist">SAVE AS PLAYLIST</button><button class="danger-outline-button" id="clear-queue">CLEAR QUEUE</button></div></div>
+      <div class="section-toolbar"><div><h2>Queued tracks <span class="count-badge" id="queue-count">0</span></h2><span class="muted">Queue order is kept in your saved session.</span></div><button class="primary-button" id="play-queue">▶ PLAY QUEUE</button></div>
+      <div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu">MOVE</th></tr></thead><tbody id="queue-rows"></tbody></table></div>
+    </section>
+
+    <section class="view" id="view-favorites" data-view-panel="favorites">
+      <div class="page-heading"><div><div class="eyebrow">PERSONAL ROTATION</div><h1>Your <span>Favorites</span></h1><p class="page-description">Your liked songs, remembered between visits.</p></div><div class="heading-actions"><button class="primary-button" id="play-favorites">▶ PLAY FAVORITES</button></div></div>
+      <div class="section-toolbar"><div><h2>Liked tracks <span class="count-badge" id="favorites-count">0</span></h2><span class="muted">Press F on the player to toggle a favorite.</span></div></div>
+      <div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu"></th></tr></thead><tbody id="favorites-rows"></tbody></table></div>
+    </section>
+
+    <section class="view" id="view-playlists" data-view-panel="playlists">
+      <div class="page-heading"><div><div class="eyebrow">CURATED SEQUENCES</div><h1>Play <span>lists</span></h1><p class="page-description">M3U8 playlists, backed up on your drive when connected.</p></div><div class="heading-actions"><button class="outline-button" id="import-playlist">↥ IMPORT M3U8</button><button class="outline-button" id="create-smart-playlist">✦ SMART PLAYLIST</button><button class="primary-button" id="create-playlist">＋ NEW PLAYLIST</button><input type="file" id="playlist-file-input" accept=".m3u,.m3u8,text/plain" hidden></div></div>
+      <div class="playlist-grid" id="playlist-grid"></div>
+      <div class="playlist-detail hidden" id="playlist-detail"><div class="section-toolbar"><div><button class="text-action" id="playlist-back">← ALL PLAYLISTS</button><h2 id="playlist-detail-title">Playlist</h2><span class="muted" id="playlist-detail-subtitle"></span></div><div class="toolbar-controls"><button class="outline-button" id="playlist-smart">✦ SMART SHUFFLE</button><button class="primary-button" id="playlist-play">▶ PLAY</button><button class="square-button" id="playlist-menu" title="Playlist actions">•••</button></div></div><div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu">MOVE</th></tr></thead><tbody id="playlist-rows"></tbody></table></div></div>
+    </section>
+
+    <section class="view" id="view-collections" data-view-panel="collections">
+      <div class="page-heading"><div><div class="eyebrow">AUTOMATICALLY CURATED</div><h1>Smart <span>Collections</span></h1><p class="page-description">Fresh paths into the music you already own. Collections are built locally from your library and listening history.</p></div><div class="heading-actions"><button class="outline-button" id="refresh-collections">↻ REFRESH</button><button class="primary-button" id="discover-mix">✧ DISCOVERY MIX</button></div></div>
+      <div class="collection-grid" id="smart-collection-grid"></div>
+      <div class="section-toolbar"><div><h2>Collection preview</h2><span class="muted" id="collection-description">Choose a collection to see its tracks.</span></div><button class="primary-button" id="play-collection" disabled>▶ PLAY COLLECTION</button></div>
+      <div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu"></th></tr></thead><tbody id="collection-rows"></tbody></table></div>
+    </section>
+
+    <section class="view" id="view-recent" data-view-panel="recent">
+      <div class="page-heading"><div><div class="eyebrow">YOUR LISTENING TRAIL</div><h1>Recently <span>Played</span></h1><p class="page-description">The tracks most recently in rotation.</p></div><div class="heading-actions"><button class="outline-button" id="clear-history">CLEAR HISTORY</button></div></div>
+      <div class="section-toolbar"><div><h2>History <span class="count-badge" id="recent-count">0</span></h2><span class="muted">Listening history is saved locally.</span></div></div>
+      <div class="track-table-wrap"><table class="track-table"><thead><tr><th class="col-index">#</th><th>TRACK</th><th>ALBUM / FOLDER</th><th>FORMAT</th><th>TIME</th><th class="col-like">♥</th><th class="col-menu"></th></tr></thead><tbody id="recent-rows"></tbody></table></div>
+    </section>
+
+    <section class="view" id="view-profiles" data-view-panel="profiles">
+      <div class="page-heading"><div><div class="eyebrow">PERSONAL LISTENING ENVIRONMENTS</div><h1>Listening <span>Profiles</span></h1><p class="page-description">Save complete combinations of theme, EQ, crossfade, workspace and visualizer settings.</p></div><div class="heading-actions"><button class="primary-button" id="profile-create">＋ SAVE CURRENT AS PROFILE</button></div></div>
+      <div class="profiles-intro glass-panel"><div class="profiles-intro-mark">◈</div><div><strong>One tap changes your listening setup.</strong><p>Profiles store preferences, not music files. Your tracks stay in your local library.</p></div><button class="outline-button" id="profile-reset">RESET PROFILE CHANGES</button></div>
+      <div class="profiles-grid" id="profiles-grid"><div class="empty-state"><div class="empty-symbol">◈</div><strong>No saved profiles yet</strong><span>Set up the sound and look you like, then save it above.</span></div></div>
+    </section>
+
+    <section class="view" id="view-moments" data-view-panel="moments">
+      <div class="page-heading"><div><div class="eyebrow">YOUR PERSONAL TRACK MARKERS</div><h1>Track <span>Moments</span></h1><p class="page-description">Bookmark timestamps, remember the drop, save a lyric, or keep a note for later.</p></div><div class="heading-actions"><button class="primary-button" id="moments-save-current">✦ SAVE CURRENT MOMENT</button></div></div>
+      <div class="moments-summary glass-panel"><div><span class="eyebrow">SAVED MOMENTS</span><strong id="moments-total">0</strong></div><div><span class="eyebrow">CURRENT TRACK</span><strong id="moments-current-track">No track selected</strong></div><div><span class="eyebrow">STORAGE</span><strong id="moments-storage-state">Browser + portable Data</strong></div></div>
+      <div class="section-toolbar"><div><h2>Your bookmarks</h2><span class="muted">Click a saved moment to return to its timestamp.</span></div><div class="toolbar-controls"><input type="search" id="moments-search" placeholder="Filter tracks or notes…" aria-label="Filter track moments"><button class="outline-button" id="moments-export">EXPORT MOMENTS</button></div></div>
+      <div class="moments-list" id="moments-list"><div class="small-empty">Save a moment while music is playing.</div></div>
+    </section>
+
+    <section class="view" id="view-statistics" data-view-panel="statistics">
+      <div class="page-heading"><div><div class="eyebrow">SIGNAL INTELLIGENCE</div><h1>Library <span>Statistics</span></h1><p class="page-description">Your collection and listening habits, calculated on this device.</p></div><div class="heading-actions"><button class="outline-button" id="import-data">IMPORT BACKUP</button><button class="outline-button" id="export-data">EXPORT EVERYTHING ZIP</button><input type="file" id="data-file-input" accept=".zip,.json,application/zip,application/json" hidden></div></div>
+      <div class="stats-grid" id="statistics-metrics"></div>
+      <div class="stats-panels"><div class="panel-card"><div class="panel-heading"><div><span class="eyebrow">BY TRACK COUNT</span><h3>Top artists</h3></div></div><div id="top-artists" class="stat-bars"></div></div><div class="panel-card"><div class="panel-heading"><div><span class="eyebrow">PLAY COUNT ≥ 30 SECONDS</span><h3>Most played</h3></div></div><div id="most-played" class="rank-list"></div></div><div class="panel-card"><div class="panel-heading"><div><span class="eyebrow">FILE DISTRIBUTION</span><h3>Formats</h3></div></div><div id="format-stats" class="stat-bars"></div></div><div class="panel-card listening-trend-panel"><div class="panel-heading"><div><span class="eyebrow">YOUR LOCAL LISTENING HISTORY</span><h3>Listening footprint</h3></div><span class="muted" id="listening-trend-total">No session data yet</span></div><div id="listening-trend" class="listening-trend"></div><p class="setting-note">Daily listening time is measured from active playback in this browser. Older play-count estimates are kept separate from measured time.</p></div></div>
+    </section>
+
+    <section class="view" id="view-tools" data-view-panel="tools">
+      <div class="page-heading"><div><div class="eyebrow">MAINTENANCE & DIAGNOSTICS</div><h1>Tools <span>& Colors</span></h1><p class="page-description">Index, verify playback, inspect the audio analyzer, and preview every theme.</p></div></div>
+      <div class="tools-grid"><button class="tool-card" id="tool-rebuild"><span class="tool-icon">↻</span><span><strong>Rebuild library index</strong><small>Force a full recursive scan and refresh cached tags.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-audio-test"><span class="tool-icon">♫</span><span><strong>Audio output test</strong><small>Play a short 880 Hz test tone through the browser output.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-decoder-test"><span class="tool-icon">▷</span><span><strong>Decoder test</strong><small>Attempt a five-second playback check on the first indexed MP3.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-analyzer"><span class="tool-icon">∿</span><span><strong>Analyzer information</strong><small>Inspect Web Audio availability and current signal state.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-lyrics-folder"><span class="tool-icon">♫</span><span><strong>Lyrics storage</strong><small>Use Data/Lyrics in the connected drive root when available.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-session"><span class="tool-icon">◷</span><span><strong>Resume session</strong><small>Restore the saved queue, current track, and playback position.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-duplicates"><span class="tool-icon">⧉</span><span><strong>Duplicate finder</strong><small>Compare file size and audio fingerprints to find possible duplicate files.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-missing-art"><span class="tool-icon">▧</span><span><strong>Missing artwork scan</strong><small>Check embedded covers; attach local art from Track Actions.</small></span><span class="tool-arrow">→</span></button><button class="tool-card" id="tool-output-devices"><span class="tool-icon">⌁</span><span><strong>Audio output</strong><small>Choose a supported playback device.</small></span><span class="tool-arrow">→</span></button></div>
+      <div class="section-toolbar theme-toolbar-heading"><div><h2>Color themes <span class="count-badge">13</span></h2><span class="muted">C changes the theme · X changes the color variant · D toggles disco.</span></div><div class="toolbar-controls"><select id="theme-variant"><option>GRADIENT</option><option>SOLID</option><option>REVERSE</option><option>DUO</option></select><button class="outline-button" id="disco-toggle">DISCO OFF</button></div></div>
+      <div class="theme-grid" id="theme-grid"></div>
+      <div class="settings-panel visualizer-custom-panel"><div class="settings-title"><span class="tool-icon">✺</span><div><h3>Visualizer Studio</h3><p>Per-mode motion settings and an optional custom palette. These controls keep the six existing visualizers and only change their rendering parameters.</p></div></div>
+        <label class="setting-row"><span><strong>Glow strength</strong><small>Reduce glow to improve performance on older GPUs.</small></span><input type="range" id="setting-viz-glow" min="0" max="100" value="72"><output id="viz-glow-output">72</output></label>
+        <label class="setting-row"><span><strong>Motion smoothing</strong><small>Higher values smooth sudden peaks more aggressively.</small></span><input type="range" id="setting-viz-smoothing" min="0" max="100" value="62"><output id="viz-smoothing-output">62</output></label>
+        <label class="setting-row"><span><strong>Render quality</strong><small>Balanced is recommended for the Trap Ring visualizer.</small></span><select id="setting-viz-quality"><option value="performance">Performance</option><option value="balanced" selected>Balanced</option><option value="high">High detail</option></select></label>
+        <label class="setting-row"><span><strong>Use custom palette</strong><small>Overrides the selected theme for the visualizers only.</small></span><input type="checkbox" id="setting-custom-palette"></label>
+        <div class="palette-color-row"><label>SHADOW <input type="color" id="palette-color-1" value="#5a1e00"></label><label>PRIMARY <input type="color" id="palette-color-2" value="#ff7a00"></label><label>HIGHLIGHT <input type="color" id="palette-color-3" value="#ffd678"></label><button class="outline-button" id="save-palette">SAVE PALETTE</button><select id="saved-palette-select" aria-label="Saved custom palette"><option value="">Saved palettes…</option></select><button class="outline-button" id="load-palette">LOAD</button></div>
+        <div class="viz-look-toolbar"><div class="viz-look-copy"><strong>Visualizer Studio Pro</strong><span>Save a complete look for this mode: palette, sensitivity, motion, glow and quality.</span></div><label class="viz-look-select-label">SAVED LOOKS<select id="viz-look-select"><option value="">Choose a saved look…</option></select></label><button class="outline-button" id="viz-look-save">SAVE CURRENT LOOK</button><button class="outline-button" id="viz-look-apply">APPLY</button><button class="danger-outline-button" id="viz-look-delete">DELETE</button></div>
+        <p class="setting-note">The Trap Ring uses fewer, batched draw calls in Performance/Balanced mode to avoid per-frame glow overhead. Named looks are separate from theme presets and can be exported in the full backup.</p>
+      </div>
+      <div class="section-toolbar"><div><h2>Visualizer modes</h2><span class="muted">The browser visualizer analyzes audio played by this player.</span></div><div class="toolbar-controls"><button class="outline-button" data-viz="0">1 SPECTRUM</button><button class="outline-button" data-viz="1">2 MIRROR</button><button class="outline-button" data-viz="2">3 LED</button><button class="outline-button" data-viz="3">4 OFF</button><button class="outline-button" data-viz="4">5 TRAP RING</button><button class="outline-button" data-viz="5">6 MONSTERCAT</button></div></div>
+    </section>
+
+    <section class="view" id="view-equalizer" data-view-panel="equalizer">
+      <div class="page-heading"><div><div class="eyebrow">SIGNAL SHAPING</div><h1>Audio <span>Equalizer</span></h1><p class="page-description">Shape the playback tone locally. Changes affect audio played by BLACKBOX in this browser.</p></div><div class="heading-actions"><button class="outline-button" id="eq-reset">RESET FLAT</button><button class="primary-button" id="eq-enabled-toggle" aria-pressed="false">EQ BYPASS</button></div></div>
+      <div class="eq-toolbar"><div><span class="eyebrow">PRESET</span><select id="eq-preset" aria-label="Equalizer preset"><option value="Flat">Flat</option><option value="Bass Boost">Bass Boost</option><option value="Bass Cut">Bass Cut</option><option value="Vocal Presence">Vocal Presence</option><option value="Treble Lift">Treble Lift</option><option value="Warm">Warm</option><option value="Electronic">Electronic</option><option value="Rock">Rock</option><option value="Night Listening">Night Listening</option><option value="Custom" disabled>Custom curve</option></select></div><div class="eq-readout"><span class="eyebrow">OUTPUT</span><strong id="eq-state-label">FLAT · BYPASSED</strong></div></div>
+      <div class="saved-eq-row"><label for="saved-eq-preset-select">SAVED EQ PRESETS<select id="saved-eq-preset-select"><option value="">Saved presets…</option></select></label><button class="outline-button" id="save-eq-preset">SAVE CURRENT AS…</button><button class="outline-button" id="load-eq-preset">LOAD</button><button class="outline-button" id="delete-eq-preset">DELETE</button></div>
+      <div class="equalizer-panel"><div class="eq-preamp"><label for="eq-preamp">PREAMP</label><input type="range" id="eq-preamp" min="-12" max="12" step="0.5" value="0"><output id="eq-preamp-output">0 dB</output></div><div class="eq-band-grid" id="eq-band-grid"></div><div class="eq-scale"><span>−12 dB</span><span>0 dB</span><span>+12 dB</span></div></div>
+      <div class="eq-info-grid"><div class="panel-card"><span class="eyebrow">AUDIO CHAIN</span><h3>Live signal path</h3><div class="signal-chain"><span>PLAYER</span><b>→</b><span>VOLUME</span><b>→</b><span>10-BAND EQ</span><b>→</b><span>OUTPUT</span></div><p class="setting-note">The analyzer and beat tracker remain connected to playback. Browser system audio outside BLACKBOX is not processed.</p></div><div class="panel-card"><span class="eyebrow">SOUND PRESETS</span><h3>Fast adjustments</h3><div class="eq-preset-actions"><button class="outline-button" data-eq-preset="Warm">WARM</button><button class="outline-button" data-eq-preset="Vocal Presence">VOCALS</button><button class="outline-button" data-eq-preset="Bass Boost">BASS</button><button class="outline-button" data-eq-preset="Night Listening">NIGHT</button></div><p class="setting-note">Presets are starting points. Move any band afterward to create a custom curve; it is saved with your local settings.</p></div></div>
+      <div class="settings-panel audio-output-panel"><div class="settings-title"><span class="tool-icon">◖</span><div><h3>Loudness & output</h3><p>Use embedded ReplayGain track values when available; otherwise BLACKBOX estimates loudness during the first seconds of a track. It is an RMS estimate, not certified LUFS mastering.</p></div></div>
+        <label class="setting-row"><span><strong>Level matching</strong><small>Reduce jumps between quieter and louder local tracks.</small></span><input type="checkbox" id="setting-level-match"></label>
+        <label class="setting-row"><span><strong>Stereo width</strong><small>Optional mid-side widening. 100% is unchanged; this is not Dolby Atmos.</small></span><input type="range" id="setting-spatial-width" min="100" max="160" step="5" value="100" aria-label="Stereo width"><output id="spatial-width-output">100%</output></label>
+        <div class="output-device-row"><label for="output-device-select">OUTPUT DEVICE</label><select id="output-device-select"><option value="default">System default output</option></select><button class="outline-button" id="refresh-output-devices">REFRESH</button><button class="outline-button" id="apply-output-device">APPLY</button></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-settings" data-view-panel="settings">
+      <div class="page-heading"><div><div class="eyebrow">PERSONAL CONFIGURATION</div><h1>Engine <span>Settings</span></h1><p class="page-description">Preferences auto-save locally. Use the full ZIP backup to carry everything through browser-data clears or between machines.</p></div><button class="outline-button" id="reset-settings">RESET DEFAULTS</button></div>
+      <div class="settings-sections">
+        <div class="settings-panel"><div class="settings-title"><span class="tool-icon">♫</span><div><h3>Playback</h3><p>Transport behavior and the mix between tracks.</p></div></div><label class="setting-row"><span><strong>Default volume</strong><small>Starting output level</small></span><input type="range" id="setting-volume" min="0" max="100" value="85"><output id="setting-volume-output">85%</output></label><label class="setting-row"><span><strong>Crossfade duration</strong><small>Standby deck fades into the next track</small></span><select id="setting-crossfade"><option value="0">Off</option><option value="2">2 seconds</option><option value="4">4 seconds</option><option value="6">6 seconds</option><option value="8">8 seconds</option></select></label><label class="setting-row"><span><strong>Seek step</strong><small>Left/right arrow jump amount</small></span><select id="setting-seek"><option value="1">1 second</option><option value="5">5 seconds</option><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="30">30 seconds</option></select></label><label class="setting-row"><span><strong>Pulse effects</strong><small>Beat flashes, pulse and border glow</small></span><input type="checkbox" id="setting-pulse" checked></label><label class="setting-row"><span><strong>Startup animation</strong><small>Show the brief engine boot sequence</small></span><input type="checkbox" id="setting-boot" checked></label><label class="setting-row"><span><strong>Reduce motion</strong><small>Limit interface animation and beat flashes</small></span><input type="checkbox" id="setting-reduced-motion"></label><label class="setting-row"><span><strong>Artwork color ambience</strong><small>Use subtle accents from embedded covers without changing your theme</small></span><input type="checkbox" id="setting-artwork-tint" checked></label></div>
+        <div class="settings-panel"><div class="settings-title"><span class="tool-icon">∿</span><div><h3>Visualizer & rhythm</h3><p>Sensitivity, beat timing, and display layout.</p></div></div><label class="setting-row"><span><strong>Visualizer sensitivity</strong><small>Raise it for quieter audio</small></span><input type="range" id="setting-sensitivity" min="-12" max="12" value="0"><output id="sensitivity-output">0</output></label><label class="setting-row"><span><strong>Visual delay</strong><small>Offset beat flashes to match your output latency</small></span><input type="range" id="setting-sync" min="0" max="300" step="25" value="0"><output id="sync-output">0 ms</output></label><label class="setting-row"><span><strong>Visualizer layout</strong><small>Balanced / lyrics focus / visual focus</small></span><select id="setting-layout"><option value="0">Balanced</option><option value="1">Lyrics focus</option><option value="2">Visual focus</option></select></label><label class="setting-row"><span><strong>Disco style</strong><small>Rainbow / pulse / ripple</small></span><select id="setting-disco-style"><option value="0">Rainbow</option><option value="1">Pulse</option><option value="2">Ripple</option></select></label></div>
+        <div class="settings-panel"><div class="settings-title"><span class="tool-icon">◈</span><div><h3>Display modules</h3><p>Keep the panels you use. Hidden modules can be restored here at any time.</p></div></div><label class="setting-row"><span><strong>Visualizer</strong><small>Main live audio display</small></span><input type="checkbox" id="setting-panel-visualizer" checked></label><label class="setting-row"><span><strong>Album artwork</strong><small>Now-playing cover and compact cover</small></span><input type="checkbox" id="setting-panel-artwork" checked></label><label class="setting-row"><span><strong>Lyrics panel</strong><small>Synced lyrics and karaoke line</small></span><input type="checkbox" id="setting-panel-lyrics" checked></label><label class="setting-row"><span><strong>Beat monitor</strong><small>BPM, kick/snare levels and synchronization</small></span><input type="checkbox" id="setting-panel-rhythm" checked></label><label class="setting-row"><span><strong>Up next</strong><small>Short preview of the upcoming queue</small></span><input type="checkbox" id="setting-panel-up-next" checked></label><p class="setting-note">These preferences auto-save. Connect the app/USB root to write them to Data, and export a full ZIP backup for browser-data clears or migration.</p></div>
+        <div class="settings-panel"><div class="settings-title"><span class="tool-icon">▤</span><div><h3>Library & storage</h3><p>Local file access and portable drive data.</p></div></div><div class="storage-info"><div><span class="overline">CONNECTED MUSIC FOLDER</span><strong id="settings-library-path">Not connected</strong></div><button class="outline-button" id="settings-connect-library">CHANGE FOLDER</button></div><div class="storage-info"><div><span class="overline">PORTABLE DATA ROOT</span><strong id="settings-root-path">Not connected (browser storage only)</strong></div><button class="outline-button" id="settings-connect-root">CONNECT DRIVE ROOT</button></div><div class="setting-note">For USB portability, choose the drive/app folder that contains MUSIC, Playlists, and Data. Browser access is granted by you and can be revoked in browser settings.</div><div class="setting-actions"><button class="primary-button" id="settings-export-full">EXPORT EVERYTHING ZIP</button><button class="outline-button" id="settings-import-full">RESTORE / MERGE BACKUP</button><button class="outline-button" id="export-settings">EXPORT SETTINGS JSON</button><button class="outline-button" id="import-settings">IMPORT SETTINGS JSON</button><input type="file" id="settings-file-input" accept=".json,application/json" hidden><input type="file" id="settings-full-file-input" accept=".zip,.json,application/zip,application/json" hidden></div></div>
+        <div class="settings-panel"><div class="settings-title"><span class="tool-icon">⌨</span><div><h3>Keyboard shortcuts</h3><p>Shortcuts are active outside text inputs.</p></div></div><div class="shortcut-grid"><span><kbd>SPACE</kbd> Play / pause</span><span><kbd>N</kbd> Next track</span><span><kbd>B</kbd> Previous track</span><span><kbd>← / →</kbd> Seek</span><span><kbd>↑ / ↓</kbd> Volume</span><span><kbd>[ / ]</kbd> Speed down / up</span><span><kbd>M</kbd> Mute</span><span><kbd>S</kbd> Smart shuffle</span><span><kbd>R</kbd> Repeat mode</span><span><kbd>F</kbd> Favorite current</span><span><kbd>T</kbd> Sleep timer</span><span><kbd>1–6 / V</kbd> Visualizer</span><span><kbd>C</kbd> Next theme</span><span><kbd>X</kbd> Next variant</span><span><kbd>D</kbd> Disco toggle</span><span><kbd>E</kbd> Disco style</span><span><kbd>Y</kbd> Layout cycle</span><span><kbd>A</kbd> A–B loop</span><span><kbd>K / L</kbd> Visual delay</span><span><kbd>H</kbd> Manual hit</span><span><kbd>, / .</kbd> Sensitivity</span><span><kbd>W</kbd> Crossfade cycle</span><span><kbd>G</kbd> Fetch lyrics</span><span><kbd>TAB</kbd> Queue view</span><span><kbd>P</kbd> Add to playlist</span><span><kbd>ESC / Q</kbd> Return to library</span></div></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-guide" data-view-panel="guide" aria-labelledby="guide-title">
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">REFERENCE / LEARN THE SYSTEM</div>
+          <h1 id="guide-title">BLACKBOX <span>Guide</span></h1>
+          <p class="page-description">A practical text guide to the player, its tools, your local music library and your data.</p>
+        </div>
+        <div class="heading-actions"><a class="outline-button guide-start-link" href="#guide-start">START HERE ↓</a></div>
+      </div>
+      <div class="guide-intro settings-panel" id="guide-start">
+        <div class="guide-intro-copy">
+          <span class="eyebrow">FIRST SESSION</span>
+          <h2>Connect a folder. Build your library. Press play.</h2>
+          <p>BLACKBOX plays audio files stored on your computer or USB drive. Your music is not uploaded to BLACKBOX. The player reads the folders you choose and keeps your library preferences locally or in the portable Data folder when you connect it.</p>
+        </div>
+        <ol class="guide-quick-steps">
+          <li><span>01</span><div><strong>Launch BLACKBOX</strong><small>Extract the ZIP, then double-click <code>Run-Music.bat</code>. Keep its PowerShell server window open while the player is running; press <kbd>Ctrl+C</kbd> there to stop it when finished.</small></div></li>
+          <li><span>02</span><div><strong>Connect music</strong><small>Choose the folder that contains your audio files, usually <code>MUSIC</code>. For portable saves, choose its parent folder containing <code>MUSIC</code>, <code>Playlists</code> and <code>Data</code>.</small></div></li>
+          <li><span>03</span><div><strong>Let the scan finish</strong><small>BLACKBOX indexes supported files and reads available tags and embedded artwork.</small></div></li>
+          <li><span>04</span><div><strong>Play and customise</strong><small>Use the library, queue, workspaces, visualizers and audio settings.</small></div></li>
+        </ol>
+      </div>
+      <div class="guide-layout">
+        <nav class="guide-index" aria-label="Guide topics">
+          <span class="eyebrow">IN THIS GUIDE</span>
+          <a href="#guide-library">01 · Music library</a>
+          <a href="#guide-playback">02 · Playback & queue</a>
+          <a href="#guide-collections">03 · Favorites & playlists</a>
+          <a href="#guide-now">04 · Now Playing & lyrics</a>
+          <a href="#guide-workspaces">05 · Workspaces & mini-player</a>
+          <a href="#guide-visualizers">06 · Visualizers & themes</a>
+          <a href="#guide-audio">07 · Equalizer & audio</a>
+          <a href="#guide-profiles">08 · Profiles & moments</a>
+          <a href="#guide-backups">09 · Backups & USB use</a>
+          <a href="#guide-get-music">10 · Getting music</a>
+          <a href="#guide-shortcuts">11 · Keyboard shortcuts</a>
+          <a href="#guide-troubleshooting">12 · Troubleshooting</a>
+          <div class="guide-index-note">Computer-first edition<br>Local music playback<br>No online music catalogue</div>
+        </nav>
+        <div class="guide-article">
+          <article class="guide-section" id="guide-library">
+            <span class="eyebrow">01 / YOUR COLLECTION</span><h2>Connect and manage your music library</h2>
+            <p>Use <strong>CONNECT MUSIC FOLDER</strong> in the left sidebar. Select the folder containing your music. It can be the included <code>MUSIC</code> folder or another folder on your computer or USB drive. Subfolders are scanned too. If you choose the app folder that contains <code>MUSIC</code>, BLACKBOX can also recognise it as the portable drive root when the other folders are present.</p>
+            <ol class="guide-steps">
+              <li>Choose <strong>CONNECT MUSIC FOLDER</strong> and approve the browser's folder-access prompt.</li>
+              <li>Choose <strong>RESCAN LIBRARY</strong> after adding, removing or renaming files.</li>
+              <li>If the normal folder chooser does not open, try <strong>BROWSER COMPATIBILITY PICKER</strong>. This fallback lets you select files from a folder; it may need to be repeated later because it does not offer the same persistent folder handle.</li>
+            </ol>
+            <p>The default formats listed in <code>config.json</code> are MP3, WAV, M4A, WMA, AAC and FLAC. Browser codec support varies; WMA and some M4A/FLAC files may be indexed but still fail to decode in a particular browser. Track tags supply title, artist and album information when available. If tags are missing, BLACKBOX uses the filename as a fallback; a filename such as <code>Artist - Track Title.mp3</code> is easier to identify. Use a track's context menu to edit displayed title, artist, album, genre, year, rating, custom tags, per-track gain or cover art. These changes are stored as BLACKBOX metadata and do not rewrite your original audio file.</p>
+            <div class="guide-note"><strong>Folder access is permission-based.</strong> BLACKBOX does not bypass Windows or browser permissions. If access is revoked, reconnect the folder and grant access again.</div>
+          </article>
+          <article class="guide-section" id="guide-playback">
+            <span class="eyebrow">02 / LISTENING</span><h2>Playback, queue and search</h2>
+            <p>Select a track row to play it. The playback bar stays available while you move between sections. Use the transport controls to play or pause, move to the previous or next track, seek, change volume, shuffle and cycle repeat modes.</p>
+            <ul class="guide-bullets">
+              <li><strong>Queue:</strong> add tracks to the queue, move them up or down, drag rows to reorder, and clear upcoming tracks from the Queue view.</li>
+              <li><strong>Search:</strong> use the Search section or press <kbd>/</kbd> to search the indexed local library.</li>
+              <li><strong>Smart Mix:</strong> create a varied selection from tracks already in your library. Smart shuffle and similar-track suggestions also use your local collection and listening data. The Duplicate Finder compares file size and fingerprints to identify possible duplicate candidates; it does not delete files. The Missing Artwork Scan identifies tracks without a detected cover.</li>
+              <li><strong>Recently Played and Statistics:</strong> review listening history, play counts, listening-time estimates, formats and top artists.</li>
+            </ul>
+            <div class="guide-note"><strong>Crossfade note:</strong> crossfade is browser-scheduled and best-effort. It is not sample-accurate gapless playback; behavior can vary with browser scheduling and audio decoding. The Sleep Timer can stop after the current track or after 15, 30, 45, 60 or 90 minutes; a timed stop fades the final 25 seconds before pausing.</div>
+          </article>
+          <article class="guide-section" id="guide-collections">
+            <span class="eyebrow">03 / ORGANISE</span><h2>Favorites, playlists and smart collections</h2>
+            <p>Mark a track as a favorite from its row or the Now Playing controls. Open <strong>Favorites</strong> to see liked tracks. Use <strong>Playlists</strong> to create your own lists and add or remove tracks.</p>
+            <p>Smart playlists are rule-based lists. Depending on the fields available in your library, you can build rules around artist, album, genre, tags, year, rating, duration, play count or favorite status. Their contents update as matching metadata and listening data change.</p>
+            <p><strong>Smart Collections</strong> provide ready-made views such as discovery and other local listening groupings. They do not search the internet or add music you do not already have.</p>
+          </article>
+          <article class="guide-section" id="guide-now">
+            <span class="eyebrow">04 / TRACK DETAILS</span><h2>Now Playing, artwork and lyrics</h2>
+            <p>The Now Playing view shows the current track, artwork, progress, playback controls, audio visualizer, lyrics panel and up-next preview. Track Actions can also expose metadata editing and related library tools.</p>
+            <p><strong>Local lyrics:</strong> place an <code>.lrc</code> or <code>.txt</code> file next to the audio track and give it the same base filename. For example, <code>Song.mp3</code> can use <code>Song.lrc</code>. LRC files can contain timestamps for synchronised lines; TXT files are displayed as plain text.</p>
+            <p><strong>Get Lyrics:</strong> when you explicitly press the Get Lyrics control, BLACKBOX can request a match from LRCLIB. This is the app's optional internet request. Lyrics already stored locally or in its cache can work offline. A match is not guaranteed.</p>
+            <div class="guide-note"><strong>Privacy:</strong> music files are read from the folders you select and are not uploaded by the player. An explicit lyrics lookup sends the track details needed for that request to LRCLIB.</div>
+          </article>
+          <article class="guide-section" id="guide-workspaces">
+            <span class="eyebrow">05 / PLAYER SPACES</span><h2>Studio, Void, Deck, Record and Mini</h2>
+            <div class="guide-feature-list">
+              <div><strong>STUDIO</strong><p>The full workspace with the library, track details, visualizer, lyrics and playback panels.</p></div>
+              <div><strong>VOID</strong><p>An immersive, minimal playback and visualizer workspace. Move the mouse or interact with the page to reveal controls when they fade.</p></div>
+              <div><strong>DECK</strong><p>A more compact player presentation with the record and cover art treated as separate elements.</p></div>
+              <div><strong>RECORD</strong><p>A separate continuous vinyl visualizer. The record spins during playback and continues through track changes. It is not automatic album playback.</p></div>
+              <div><strong>MINI</strong><p>Opens a compact playback window. It synchronises with the main window when both are open from the same BLACKBOX origin. Browser and operating-system window rules control always-on-top behavior.</p></div>
+            </div>
+          </article>
+          <article class="guide-section" id="guide-visualizers">
+            <span class="eyebrow">06 / VISUAL SYSTEM</span><h2>Visualizers, themes and Visualizer Studio Pro</h2>
+            <p>BLACKBOX includes six selectable visualizer modes:</p>
+            <div class="guide-mode-list"><span>1 · Spectrum</span><span>2 · Mirror</span><span>3 · LED</span><span>4 · Off</span><span>5 · Trap Ring</span><span>6 · Monstercat</span></div>
+            <p>Choose a mode with the numbered controls or keyboard shortcuts. In <strong>Tools & Colors</strong>, change among the 13 themes and four color variants. Disco effects have separate styles and can be switched off.</p>
+            <p><strong>Visualizer Studio Pro</strong> includes glow, smoothing and quality controls, custom palettes and saved looks. Use Performance quality if Trap Ring is too demanding for your computer. A saved look stores the visual settings so you can apply them again.</p>
+          </article>
+          <article class="guide-section" id="guide-audio">
+            <span class="eyebrow">07 / SOUND</span><h2>Equalizer and audio controls</h2>
+            <ul class="guide-bullets">
+              <li><strong>10-band EQ:</strong> choose a preset, adjust individual frequency bands and save your own presets.</li>
+              <li><strong>Level matching:</strong> uses embedded ReplayGain values where available, otherwise an RMS estimate. It is not calibrated LUFS mastering.</li>
+              <li><strong>Stereo width:</strong> optional mid-side widening. 100% is unchanged. This is not Dolby Atmos or object-based surround.</li>
+              <li><strong>Output device:</strong> refresh the device list and apply a device when your browser supports audio-output routing. Device listing alone does not guarantee routing support.</li>
+              <li><strong>Playback speed:</strong> use the speed control or <kbd>[</kbd> and <kbd>]</kbd> to step through supported speeds.</li>
+            </ul>
+            <p>Audio processing applies to tracks played inside BLACKBOX. It does not process sound from other apps or the rest of Windows.</p>
+          </article>
+          <article class="guide-section" id="guide-profiles">
+            <span class="eyebrow">08 / PERSONALISE</span><h2>Listening Profiles and Track Moments</h2>
+            <p><strong>Listening Profiles</strong> save a named snapshot of supported preferences, including the workspace, theme, visualizer, EQ and playback settings. Create a profile when your current setup is the way you like it; apply it later to restore that combination. Profiles can be renamed, updated and deleted.</p>
+            <p><strong>Track Moments</strong> save a timestamp and optional note against a track. Use them to mark a favorite passage, a point to revisit or a section you want to remember. Select a saved moment to jump back to its position in the track.</p>
+          </article>
+          <article class="guide-section" id="guide-backups">
+            <span class="eyebrow">09 / KEEP YOUR DATA</span><h2>Backups and using BLACKBOX on USB</h2>
+            <p>BLACKBOX stores preferences and library data in the browser profile. When you connect a portable drive root, it can also mirror supported data files into the drive's <code>Data</code> folder.</p>
+            <ol class="guide-steps">
+              <li>In Settings, choose <strong>CONNECT DRIVE ROOT</strong>.</li>
+              <li>Select the main BLACKBOX folder that contains <code>MUSIC</code>, <code>Playlists</code> and <code>Data</code>. Do not select only the Data folder.</li>
+              <li>Grant read/write permission when requested. Check the status messages if a portable save fails.</li>
+              <li>Use <strong>EXPORT EVERYTHING ZIP</strong> regularly and store a copy somewhere separate from the USB drive.</li>
+              <li>On another computer, copy the project rather than moving your only copy, launch it, reconnect the folders and grant permission again. Use <strong>RESTORE / MERGE BACKUP</strong> if you need to restore data.</li>
+            </ol>
+            <div class="guide-note"><strong>Important:</strong> the browser's permission handles and some performance caches remain tied to that browser profile. You may need to reconnect the folders on another computer. Audio files are not included in the full data backup by default; keep your music folders backed up separately. A USB drive can fail, so keep another backup.</div>
+          </article>
+          <article class="guide-section" id="guide-get-music">
+            <span class="eyebrow">10 / BUILD YOUR LIBRARY</span><h2>Getting music files onto your computer</h2>
+            <p>BLACKBOX is a local player, not a music-download service. Add audio files that you own or are allowed to download: artist-provided downloads, music with a licence that permits downloading, your own recordings, or public-domain recordings.</p>
+            <h3>Using spotDL with a Spotify playlist</h3>
+            <p>spotDL uses Spotify links as track and playlist references, then searches supported audio sources (the standard setup uses YouTube) for matching recordings. A Spotify playlist being public does <strong>not</strong> grant permission to download the recordings in it. Only use this workflow for tracks you are legally authorised to download and keep. Respect copyright and the terms that apply to the source.</p>
+            <ol class="guide-steps">
+              <li><strong>Install prerequisites.</strong> Follow the current spotDL installation guide. Its Windows instructions list Python 3.11–3.15, FFmpeg 4.2 or newer and the Visual C++ 2019 Redistributable. Select the Python option that adds it to PATH.</li>
+              <li><strong>Open Command Prompt.</strong> Press <kbd>Win</kbd> + <kbd>R</kbd>, type <code>cmd</code> and press Enter.</li>
+              <li><strong>Install or update spotDL.</strong> Run <code>py -m pip install --upgrade spotdl</code>. If Windows cannot find <code>py</code>, fix the Python installation/PATH first using the official Python instructions. If the <code>spotdl</code> command itself is not recognised, check the PATH troubleshooting page or use the Python module form shown in the official usage guide.</li>
+              <li><strong>Install its FFmpeg helper.</strong> Run <code>spotdl --download-ffmpeg</code>. The spotDL documentation also recommends Deno for some YouTube downloads; install it with <code>spotdl --download-deno</code> when needed.</li>
+              <li><strong>Prepare your destination.</strong> In File Explorer, open the folder where you want downloads saved. Click the address bar, type <code>cmd</code> and press Enter. Command Prompt opens in that folder.</li>
+              <li><strong>Copy the playlist URL.</strong> In Spotify, use Share to copy the playlist link. Confirm you have permission to download the recordings you intend to use.</li>
+              <li><strong>Run the playlist command.</strong> Replace the example URL with your own permitted playlist link:</li>
+            </ol>
+            <pre class="guide-command"><code>spotdl download "YOUR_COPIED_SPOTIFY_PLAYLIST_URL"</code></pre>
+            <p>spotDL saves the files in the working folder by default. Check the output, correct any mismatched tracks, then move or copy the authorised audio files into your BLACKBOX music folder and press <strong>RESCAN LIBRARY</strong>.</p>
+            <div class="guide-note"><strong>Third-party tool:</strong> spotDL is not part of BLACKBOX and may change independently. Use its official documentation for current setup and troubleshooting. BLACKBOX does not run it or download music automatically.</div>
+            <div class="guide-links"><a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">Python downloads ↗</a><a href="https://spotdl.github.io/spotify-downloader/installation/" target="_blank" rel="noopener noreferrer">spotDL installation ↗</a><a href="https://spotdl.github.io/spotify-downloader/usage/" target="_blank" rel="noopener noreferrer">spotDL playlist usage ↗</a><a href="https://spotdl.github.io/spotify-downloader/troubleshooting/" target="_blank" rel="noopener noreferrer">spotDL troubleshooting ↗</a></div>
+          </article>
+          <article class="guide-section" id="guide-shortcuts">
+            <span class="eyebrow">11 / FASTER CONTROL</span><h2>Keyboard shortcuts</h2>
+            <p>Shortcuts work when you are not typing into a text field. Some shortcuts change the active visualizer or view immediately.</p>
+            <div class="guide-shortcut-grid">
+              <span><kbd>Space</kbd> Play / pause</span><span><kbd>N</kbd> Next track</span><span><kbd>B</kbd> Previous track</span><span><kbd>← / →</kbd> Seek backward / forward</span><span><kbd>↑ / ↓</kbd> Volume up / down</span><span><kbd>[ / ]</kbd> Playback speed</span><span><kbd>M</kbd> Mute</span><span><kbd>S</kbd> Shuffle</span><span><kbd>R</kbd> Repeat mode</span><span><kbd>F</kbd> Favorite current track</span><span><kbd>T</kbd> Sleep timer</span><span><kbd>1–6</kbd> Choose visualizer</span><span><kbd>V</kbd> Cycle visualizers</span><span><kbd>C</kbd> Next theme</span><span><kbd>X</kbd> Next color variant</span><span><kbd>D</kbd> Toggle disco</span><span><kbd>E</kbd> Next disco style</span><span><kbd>Y</kbd> Cycle layout</span><span><kbd>A</kbd> Toggle A–B loop</span><span><kbd>K / L</kbd> Visual delay</span><span><kbd>H</kbd> Manual hit / recent view</span><span><kbd>, / .</kbd> Sensitivity down / up</span><span><kbd>W</kbd> Crossfade duration</span><span><kbd>G</kbd> Request lyrics</span><span><kbd>P</kbd> Add current track to playlist</span><span><kbd>Tab</kbd> Switch Queue / Now Playing</span><span><kbd>/</kbd> Open library search</span><span><kbd>Ctrl + K</kbd> Command palette</span><span><kbd>Esc / Q</kbd> Return to library</span></div>
+          </article>
+          <article class="guide-section" id="guide-troubleshooting">
+            <span class="eyebrow">12 / WHEN SOMETHING GOES WRONG</span><h2>Troubleshooting</h2>
+            <div class="guide-troubleshoot-list">
+              <div><strong>The app opens, but the folder chooser does not.</strong><p>Use <code>Run-Music.bat</code> to launch the local server, then try the compatibility picker. A secure localhost origin is needed for the full folder-access API.</p></div>
+              <div><strong>The library is empty or some tracks are missing.</strong><p>Check that the chosen folder contains supported audio files. Press Rescan Library. Confirm the files use one of the extensions listed in <code>config.json</code>.</p></div>
+              <div><strong>BLACKBOX asks for folder access again.</strong><p>Browser permissions can be revoked or become unavailable after moving to another browser profile or computer. Reconnect the folder and grant permission again.</p></div>
+              <div><strong>My settings or playlists did not follow me to another computer.</strong><p>Connect the drive root containing MUSIC, Playlists and Data. Check Data write permissions and export a full backup before clearing browser data. Import the backup on the other computer if needed.</p></div>
+              <div><strong>Lyrics do not appear.</strong><p>Check for a matching .lrc or .txt sidecar file. The optional Get Lyrics request requires an internet connection and may not find a match.</p></div>
+              <div><strong>There is no sound or the output device is wrong.</strong><p>Check the track is playing, browser/tab volume and Windows output device. Refresh the output list and apply a device only if your browser supports routing. Try a different supported audio file.</p></div>
+              <div><strong>The visualizer is slow.</strong><p>Open Tools & Colors and switch Render Quality to Performance. Lower glow or use Spectrum, Mirror or LED instead of Trap Ring on a less powerful GPU.</p></div>
+              <div><strong>The mini-player does not stay on top.</strong><p>The browser and operating system control window stacking. BLACKBOX can synchronise the mini window but cannot force it to remain above every other application.</p></div>
+            </div>
+          </article>
+          <div class="guide-ending"><strong>Keep your source music safe.</strong><span>BLACKBOX organises and plays the files you choose. Keep independent copies of your music and exported backups.</span><a href="#guide-start">BACK TO THE TOP ↑</a></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="app-footer"><span><i class="status-dot"></i> BLACKBOX / LOCAL MODE</span><span id="footer-message">NO TELEMETRY · FILES REMAIN LOCAL</span><span>WIN 10/11 · CHROMIUM RECOMMENDED</span></footer>
+  </main>
+
+  <footer class="mini-player" id="mini-player"><div class="mini-track"><div class="mini-art" id="mini-art">◖</div><div class="mini-track-text"><strong id="mini-title">Nothing playing</strong><span id="mini-artist">Choose a track from your library</span></div><button id="mini-favorite" class="mini-heart" title="Favorite">♡</button></div><div class="mini-middle"><div class="mini-controls"><button id="mini-previous" title="Previous">|◀</button><button id="mini-play" class="mini-play" title="Play / pause">▶</button><button id="mini-next" title="Next">▶|</button></div><div class="mini-progress"><span id="mini-current-time">00:00</span><input type="range" min="0" max="1000" value="0" id="mini-seek"><span id="mini-duration">00:00</span></div></div><div class="mini-right"><button id="mini-shuffle" title="Shuffle">⤨</button><button id="mini-queue" title="Queue">☷</button><button id="mini-mute" title="Mute">◖</button></div></footer>
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+  <div class="command-scrim hidden" id="command-scrim" aria-hidden="true"><div class="command-panel" role="dialog" aria-modal="true" aria-label="BLACKBOX command palette"><div class="command-search-line"><span>⌕</span><input id="command-search" type="search" placeholder="Search anything or run a command…" autocomplete="off" spellcheck="false"><kbd>ESC</kbd></div><div class="command-section-label">QUICK ACTIONS</div><div class="command-results" id="command-results"></div><div class="command-footer"><span>Navigate with ↑ ↓</span><span><kbd>ENTER</kbd> to run</span><span><kbd>CTRL K</kbd> to toggle</span></div></div></div>
+  <div class="modal-scrim hidden" id="modal-scrim"><div class="modal-card" id="modal-card" role="dialog" aria-modal="true"><div class="modal-heading"><div><span class="eyebrow" id="modal-eyebrow">BLACKBOX</span><h2 id="modal-title">Action</h2></div><button class="icon-button" id="modal-close" aria-label="Close dialog">×</button></div><div id="modal-body"></div><div class="modal-actions" id="modal-actions"></div></div></div>
+  <audio id="audio-a" preload="auto"></audio><audio id="audio-b" preload="auto"></audio>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
