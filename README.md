@@ -40,6 +40,30 @@ A native macOS local-first music player (`BlackBoxStudio.app`) built with **Swif
    ```
 4. Inside the app, click **CONNECT MUSIC FOLDER** (or press **`⌘O`**) and select the folder containing your audio files (`.mp3`, `.flac`, `.m4a`, `.wav`, `.aac`, `.ogg`, `.opus`). Your folder selection is saved automatically across launches.
 
+Because **BLACKBOX Studio** is an open-source release without an Apple Developer certificate, macOS Gatekeeper will block it on first launch with an alert stating:
+> *"Apple cannot check it for malicious software"* or *"BlackBoxStudio cannot be opened because the developer cannot be verified."*
+
+Choose any of the methods below to open the application:
+
+### Method 1: Control-Click (Quickest)
+1. Open `BlackBoxStudio.dmg` and drag **BlackBoxStudio** into your **Applications** folder.
+2. Open your **Applications** folder in Finder.
+3. **Right-click** (or hold **Control** and click) on `BlackBoxStudio.app` and select **Open**.
+4. In the dialog box that appears, click **Open**.  
+   *(macOS remembers this decision—subsequent launches will open normally).*
+
+### Method 2: System Settings
+1. Attempt to launch `BlackBoxStudio.app` once.
+2. Open **System Settings** > **Privacy & Security**.
+3. Scroll down to the **Security** header.
+4. Locate the notification stating *"BlackBoxStudio was blocked from use..."* and click **Open Anyway**.
+5. Enter your Mac login password or confirm with Touch ID.
+
+### Method 3: Terminal Command
+Clear the macOS quarantine attribute directly:
+```bash
+xattr -cr /Applications/BlackBoxStudio.app
+
 ## macOS Keyboard Shortcuts
 
 | Shortcut | Action |
