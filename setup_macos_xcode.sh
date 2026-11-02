@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 # ==============================================================================
 # BLACKBOX Studio — Native macOS Xcode Project Generator & Builder
